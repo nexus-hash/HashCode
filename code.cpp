@@ -8,6 +8,7 @@
 #include <unordered_map>
 using namespace std;
 
+#define ll long long int
 //run time bash play.sh to compile program in shell
 //run play.bat to compile programm in command prompt
 
