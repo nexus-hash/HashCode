@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <string.h>
-#include <stdio.h>
+#include <string>
+#include <cstdio>
 #include <unordered_set>
 #include <algorithm>
 #include <cassert>
@@ -30,7 +30,7 @@ struct Pizza
             string s_temp = string(s);
             ing_set.insert(s_temp);
             int set_size_after_insertion = ing_set.size();
-            if (set_size_after_insertion != set_size_before_insertion) 
+            if (set_size_after_insertion != set_size_before_insertion)
             {
                 ing_count++;
                 ingd_map[s_temp] = ing_count;
@@ -40,81 +40,106 @@ struct Pizza
     }
 };
 
+int m;
+vector<Pizza> pizzas;
+static vector<bool> used;
+
+vector<int> find_good_delivery(int i)
+{
+    static vector<bool> usedIngredients(ing_count, false);
+    vector<int> delivery;
+
+    for (int x = 0; x < i; x++)
+    {
+        pair<int, int> best;
+        best.first = -1;
+        best.second = -1;
+        int iterated = 0;
+        for (int id = 0; id < m; id++)
+        {
+
+            if (!used[id])
+            {
+                if (++iterated == 200000)
+                {
+                    break;
+                }
+                int improvement = 0;
+                for (int idx : pizzas[id].ingreds)
+                {
+                    if (!usedIngredients[idx])
+                    {
+                        improvement++;
+                    }
+                }
+                if (improvement > best.first)
+                {
+                    best = make_pair(improvement, id);
+                }
+            }
+        }
+        assert(best.second != -1);
+        int id = best.second;
+        delivery.push_back(id);
+        used[id] = true;
+        for (int idx : pizzas[id].ingreds)
+        {
+            usedIngredients[idx] = true;
+        }
+    }
+    return delivery;
+}
+
 int main()
 {
-    int m, t[5];
+    int t[5];
     scanf("%d", &m);
 
     for (int i = 2; i <= 4; i++)
     {
         scanf("%d", &t[i]);
     }
-
-    vector<Pizza> pizzas(m);
+    pizzas.resize(m);
 
     for (int i = 0; i < m; i++)
     {
         pizzas[i].read(i);
     }
 
-    bool used[m] = {false};
-    vector<vector<int> > output;
+    used.resize(m, false);
+    vector<vector<int>> output;
     int pizzas_used = 0;
     double percent_done = 0.0;
-
     for (int i = 4; i >= 2; --i)
-    {   
+    {
         for (int rep = 0; rep < t[i]; ++rep)
         {
-            double val = (double) pizzas_used * 100 / pizzas.size();
-            if (val - percent_done > 0.5)
+            double val = (double)pizzas_used * 100 / pizzas.size();
+            if (val - percent_done > 1.0)
             {
-                cerr << val << "% ";
                 percent_done = val;
+                float progress = percent_done / 100;
+                int barWidth = 70;
+
+                std::cerr << "[";
+                int pos = barWidth * progress;
+                for (int i = 0; i < barWidth; ++i)
+                {
+                    if (i < pos)
+                        std::cerr << "=";
+                    else if (i == pos)
+                        std::cerr << ">";
+                    else
+                        std::cerr << " ";
+                }
+                std::cerr << "] " << int(progress * 100.0) << " %\r";
+                std::cerr.flush();
             }
 
-            if (pizzas_used + i <= (int) pizzas.size())
+            if (pizzas_used + i <= (int)pizzas.size())
             {
                 pizzas_used += i;
-                bool usedIngredients[ing_count] = {false};
-                vector<int> delivery;
-                
-                for (int x = 0; x < i; x++)
-                {
-                    pair<int, int> best;
-                    best.first = -1;
-                    best.second = -1;
-                    int iterated = 0;
-                    for (int id = 0; id < m; id++)
-                    {
-
-                        if (!used[id])
-                        {
-                            if (++iterated == 100000){
-                                break;
-                            }
-                            int improvement = 0;
-                            for (int idx : pizzas[id].ingreds)
-                            {
-                                if (!usedIngredients[idx])
-                                {
-                                    improvement++;
-                                }
-                            }
-                            if (improvement > best.first){
-                                best = make_pair(improvement,id);
-                            }
-                        }
-                    }
-                    assert(best.second != -1);
-                    int id = best.second;
-                    delivery.push_back(id);
-                    used[id] = true;
-                    for (int idx : pizzas[id].ingreds)
-                    {
-                        usedIngredients[idx] = true;
-                    }
-                }
+                vector<int> delivery = find_good_delivery(i);
                 output.push_back(delivery);
             }
         }
@@ -126,7 +151,8 @@ int main()
         printf("%d", (int)delivery.size());
         for (int id : delivery)
         {
-            for(int s: pizzas[id].ingreds){
+            for (int s : pizzas[id].ingreds)
+            {
                 set.insert(s);
             }
             printf(" %d", id);
