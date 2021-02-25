@@ -57,7 +57,7 @@ int main()
         pizzas[i].read(i);
     }
 
-    bool used[m] = {false};
+    vector <bool> used(m,false);
     vector<vector<int> > output;
     int pizzas_used = 0;
     double percent_done = 0.0;
@@ -76,7 +76,7 @@ int main()
             if (pizzas_used + i <= (int) pizzas.size())
             {
                 pizzas_used += i;
-                bool usedIngredients[ing_count] = {false};
+                vector<bool> usedIngredients(ing_count,false);
                 vector<int> delivery;
                 
                 for (int x = 0; x < i; x++)
@@ -90,9 +90,9 @@ int main()
 
                         if (!used[id])
                         {
-                            if (++iterated == 100000){
+                            if (++iterated == 50){
                                 break;
-                            }
+                           }
                             int improvement = 0;
                             for (int idx : pizzas[id].ingreds)
                             {
@@ -101,9 +101,7 @@ int main()
                                     improvement++;
                                 }
                             }
-                            if (improvement > best.first){
-                                best = make_pair(improvement,id);
-                            }
+                            best = max(best,make_pair(improvement,id));
                         }
                     }
                     assert(best.second != -1);
