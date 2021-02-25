@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <string.h>
-#include <stdio.h>
+#include <string>
+#include <cstdio>
 #include <unordered_set>
 #include <algorithm>
 #include <cassert>
@@ -13,6 +13,8 @@ using namespace std;
 //run play.bat to compile programm in command prompt
 
 int main(){
-    //Lets get started
+    int a;
+    scanf("%d", &a);
+    printf("%d", a);
     return 0;
 }
