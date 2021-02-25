@@ -32,8 +32,8 @@ struct Pizza
             int set_size_after_insertion = ing_set.size();
             if (set_size_after_insertion != set_size_before_insertion) 
             {
-                count++;
-                ingd_map[s_temp] = count;
+                ing_count++;
+                ingd_map[s_temp] = ing_count;
             }
             ingreds.push_back(ingd_map[s_temp]);
         }
@@ -60,17 +60,23 @@ int main()
     bool used[m] = {false};
     vector<vector<int> > output;
     int pizzas_used = 0;
+    double percent_done = 0.0;
 
     for (int i = 4; i >= 2; --i)
     {   
         for (int rep = 0; rep < t[i]; ++rep)
         {
-            cerr << (double) pizzas_used * 100 / pizzas.size() << "% ";
+            double val = (double) pizzas_used * 100 / pizzas.size();
+            if (val - percent_done > 0.5)
+            {
+                cerr << val << "% ";
+                percent_done = val;
+            }
 
             if (pizzas_used + i <= (int) pizzas.size())
             {
                 pizzas_used += i;
-                unordered_set<int> usedIngredients;
+                bool usedIngredients[ing_count] = {false};
                 vector<int> delivery;
                 
                 for (int x = 0; x < i; x++)
@@ -84,18 +90,18 @@ int main()
 
                         if (!used[id])
                         {
-                            if (++iterated == 1000000){
+                            if (++iterated == 100000){
                                 break;
                             }
                             int improvement = 0;
-                            for (int s : pizzas[id].ingreds)
+                            for (int idx : pizzas[id].ingreds)
                             {
-                                if (!usedIngredients.count(s))
+                                if (!usedIngredients[idx])
                                 {
                                     improvement++;
                                 }
                             }
-                            if(improvement > best.first){
+                            if (improvement > best.first){
                                 best = make_pair(improvement,id);
                             }
                         }
@@ -104,9 +110,9 @@ int main()
                     int id = best.second;
                     delivery.push_back(id);
                     used[id] = true;
-                    for (int s : pizzas[id].ingreds)
+                    for (int idx : pizzas[id].ingreds)
                     {
-                        usedIngredients.insert(s);
+                        usedIngredients[idx] = true;
                     }
                 }
                 output.push_back(delivery);
